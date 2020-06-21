@@ -20,3 +20,6 @@ __layers_css__ = dict()
 if os.path.isfile(__css_refs__):
     with open(__css_refs__,'r', encoding='utf-8') as fjson:
         __layers_css__ = json.load(fjson)
+
+""" Link function """
+from tensorplot.plot_model import plot_model
