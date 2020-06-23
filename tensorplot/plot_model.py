@@ -94,17 +94,17 @@ def plot_model(model, filename = 'model.png', show_shapes = True, rankdir='TB', 
     :return:
     """
     """ Setup params """
-    dot = pydot.Dot()
-    dot.set('rankdir', rankdir)
-    dot.set('concentrate', True)
-    dot.set('dpi', dpi)
-    dot.set_node_defaults(shape='record')
+    graph = pydot.Dot(graph_type='digraph', strict = True)
+    graph.set('rankdir', rankdir)
+    graph.set('concentrate', True)
+    graph.set('dpi', dpi)
+    graph.set_node_defaults(shape='record')
 
     """ First, let's initialize our graph """
-    graph = pydot.Dot(graph_type='digraph', strict = True)
-    graph.set_nodesep(2)
-    graph.set_fontpath(tp.__fonts_dir__)
-    graph.set_fontname(tp.__layers_css__['globals']['font_tag']['name'])
+    #graph = pydot.Dot(graph_type='digraph', strict = True)
+    #graph.set_nodesep(2)
+    #graph.set_fontpath(tp.__fonts_dir__)
+    #graph.set_fontname(tp.__layers_css__['globals']['font_tag']['name'])
 
     """ Now let's define each node (layer) """
     nodes = {}
