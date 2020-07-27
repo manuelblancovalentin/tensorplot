@@ -1,3 +1,4 @@
+README.md
 setup.py
 TensorPlot.egg-info/PKG-INFO
 TensorPlot.egg-info/SOURCES.txt
