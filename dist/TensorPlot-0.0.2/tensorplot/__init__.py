@@ -1,6 +1,6 @@
 """ Init params """
 import tensorplot as tp
-__version__ = '0.0.3'
+__version__ = '0.0.1'
 __author__ = 'Manuel Blanco Valentin'
 __email__ = 'manuel.blanco.valentin@gmail.com'
 site = 'http://github.com/manuelblancovalentin/tensorplot'
