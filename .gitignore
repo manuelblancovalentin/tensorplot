@@ -7,3 +7,5 @@ test.svg
 tensorplot/__res__/.DS_Store
 .DS_Store
 *.pyc
+tensorplot/__pycache__/plot_model.cpython-37.pyc
+tensorplot/__pycache__/__init__.cpython-37.pyc
