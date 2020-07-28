@@ -1,6 +1,7 @@
 """"""
 
 """ Basic modules """
+import copy
 import numpy as np
 
 """ Tensorplot """
@@ -60,15 +61,14 @@ def parse_layer_style(layer):
         layer_class = 'Common'
 
     """ Now get css entry """
-    layer_style = tp.__layers_css__['layers'][layer_class]
+    layer_style = copy.deepcopy(tp.__layers_css__['layers'][layer_class])
 
     """ Check if we have to format the tag section """
     if 'lambda' in layer_style['tag']:
-        if layer_style['tag'][0] in ["'",'"']:
-            if hasattr(eval(eval(layer_style['tag'])),'__call__'):
-                layer_style['tag'] = eval(eval(layer_style['tag']))(layer)
-            else:
-                layer_style['tag'] = layer_class
+        if hasattr(eval(layer_style['tag']),'__call__'):
+            layer_style['tag'] = copy.deepcopy(eval(layer_style['tag'])(layer))
+        else:
+            layer_style['tag'] = layer_class
 
     return layer_style, is_wrapper
 
@@ -110,6 +110,7 @@ def plot_model(model, filename = 'model.png', show_shapes = True, rankdir='TB', 
     nodes = {}
     inbounds = {}
     node_layers = {}
+    in_shapes = {}
     for ly in model.layers:
         """ Get layer params """
         __name__ = ly.output.name
@@ -121,9 +122,13 @@ def plot_model(model, filename = 'model.png', show_shapes = True, rankdir='TB', 
         """ Get inbounds for this layer """
         if __name__ not in inbounds:
             inbounds[__name__] = []
+        if __name__ not in in_shapes:
+            in_shapes[__name__] = []
 
         _input_ = ly.input if isinstance(ly.input,list) else [ly.input]
         inbounds[__name__] += [ln.name for ln in _input_ if ln.name != __name__]
+        in_shapes[__name__] += [f'(?,{",".join([str(lln) for lln in ln.shape.as_list()[1:]])})' \
+                                for ln in _input_ if ln.name != __name__]
 
         """ If inbound not in nodes, make it now (it means it's an input) """
         for iln, ln in enumerate(inbounds[__name__]):
@@ -138,14 +143,15 @@ def plot_model(model, filename = 'model.png', show_shapes = True, rankdir='TB', 
     """ Now we can easily identify the inputs/outputs of the model by looking at inbounds """
     input_nodes = [node_name for node_name in inbounds if len(inbounds[node_name]) == 0]
     output_nodes = [node_layers[ib].output.name for ib in list(inbounds.keys()) if ib not in np.hstack(list(inbounds.values()))]
+    print(in_shapes)
 
     """ Add nodes and edges to graph """
     for node_name in inbounds:
 
         """ If this is an input_node, recompile using right style """
         if node_name in input_nodes:
-            style = {**tp.__layers_css__['layers']['InputLayer']}
-            style['tag'] = eval(style['tag'])(node_layers[node_name])
+            style = copy.deepcopy(tp.__layers_css__['layers']['InputLayer'])
+            style['tag'] = copy.deepcopy(eval(style['tag'])(node_layers[node_name]))
             graph.del_node(nodes[node_name])
             nodes[node_name] = generate_node(None, name = node_name, style = style)
 
@@ -154,15 +160,16 @@ def plot_model(model, filename = 'model.png', show_shapes = True, rankdir='TB', 
         graph.add_node(node)
         print(f'[INFO] - Adding layer {node_name} to graph.')
 
-        for ib in inbounds[node_name]:
-            edge = pydot.Edge(nodes[ib],node)
+        for ib,ish in zip(inbounds[node_name],in_shapes[node_name]):
+            kww = {'label':ish} if show_shapes else {}
+            edge = pydot.Edge(nodes[ib],node,**kww)
             graph.add_edge(edge)
             edge.set_fontname(tp.__layers_css__['globals']['font_tag']['name'])
 
         """ If this is an output node, add extra block """
         if node_name in output_nodes:
-            style = {**tp.__layers_css__['layers']['OutputLayer']}
-            style['tag'] = eval(style['tag'])(node_layers[node_name])
+            style = copy.deepcopy(tp.__layers_css__['layers']['OutputLayer'])
+            style['tag'] = copy.deepcopy(eval(style['tag'])(node_layers[node_name]))
             graph.del_node('out_'+node_name)
             out_node = generate_node(None, name='out_'+node_name, style=style)
             graph.add_node(out_node)
