@@ -5,3 +5,4 @@ test.svg
 .DS_Store
 *.pyc
 tensorplot/__res__/.DS_Store
+.DS_Store
