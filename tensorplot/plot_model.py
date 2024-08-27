@@ -56,17 +56,31 @@ def parse_layer_style(layer):
         is_wrapper = True
         layer_class = layer.layer.__class__.__name__
 
-    """ Check if class name of layer exists in css """
-    if layer_class not in tp.__layers_css__['layers']:
-        layer_class = 'Common'
+    """ Compatibility with Qkeras """
+    if layer_class[0] == 'Q':
+        """ Check if class name of layer exists in css """
+        if layer_class[1:] not in tp.__layers_css__['layers']:
+            layer_class = 'Common'
 
-    """ Now get css entry """
-    layer_style = copy.deepcopy(tp.__layers_css__['layers'][layer_class])
+        """ Now get css entry """
+        layer_style = copy.deepcopy(tp.__layers_css__['layers'][layer_class[1:]])
+    else:
+        """ Check if class name of layer exists in css """
+        if layer_class not in tp.__layers_css__['layers']:
+            layer_class = 'Common'
+
+        """ Now get css entry """
+        layer_style = copy.deepcopy(tp.__layers_css__['layers'][layer_class])
+
 
     """ Check if we have to format the tag section """
     if 'lambda' in layer_style['tag']:
         if hasattr(eval(layer_style['tag']),'__call__'):
-            layer_style['tag'] = copy.deepcopy(eval(layer_style['tag'])(layer))
+            try:
+                layer_style['tag'] = copy.deepcopy(eval(layer_style['tag'])(layer))
+            except:
+                layer_style['tag'] = layer_class
+
         else:
             layer_style['tag'] = layer_class
 
