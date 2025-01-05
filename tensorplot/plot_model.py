@@ -1,6 +1,7 @@
 """"""
 
 """ Basic modules """
+import os
 import copy
 import numpy as np
 
@@ -59,11 +60,15 @@ def parse_layer_style(layer):
     """ Compatibility with Qkeras """
     if layer_class[0] == 'Q':
         """ Check if class name of layer exists in css """
+        
         if layer_class[1:] not in tp.__layers_css__['layers']:
             layer_class = 'Common'
+            disp_name = layer_class
+        else:
+            disp_name = layer_class[1:]
 
         """ Now get css entry """
-        layer_style = copy.deepcopy(tp.__layers_css__['layers'][layer_class[1:]])
+        layer_style = copy.deepcopy(tp.__layers_css__['layers'][disp_name])
     else:
         """ Check if class name of layer exists in css """
         if layer_class not in tp.__layers_css__['layers']:
@@ -101,7 +106,7 @@ def parse_layer_style(layer):
     A Jupyter notebook Image object if Jupyter is installed.
     This enables in-line display of the model plots in notebooks.
   """
-def plot_model(model, filename = 'model.png', show_shapes = True, rankdir='TB', dpi=96, **kwargs):
+def plot_model(model, filename = 'model.png', path = '.', show_shapes = True, rankdir='TB', dpi=96, display = True, **kwargs):
     """
     :param model:
     :param filename:
@@ -190,14 +195,22 @@ def plot_model(model, filename = 'model.png', show_shapes = True, rankdir='TB', 
             edge = pydot.Edge(node,out_node)
             graph.add_edge(edge)
 
-    graph.write_png(filename)
-    graph.write_svg(filename.replace('png','svg'))
+    
+
+    if filename is not None:
+        if path is not None:
+            filename = os.path.join(path,filename)
+        graph.write_png(filename)
+        graph.write_svg(filename.replace('png','svg'))
 
     # Return the image as a Jupyter Image object, to be displayed in-line.
     # Note that we cannot easily detect whether the code is running in a
     # notebook, and thus we always return the Image if Jupyter is available.
-    try:
-        from IPython import display
-        return display.Image(filename=filename)
-    except ImportError:
-        pass
+    if display:
+        try:
+            from IPython import display
+            return display.Image(filename=filename)
+        except ImportError:
+            pass
+    else:
+        return filename
