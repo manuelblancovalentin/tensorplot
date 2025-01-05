@@ -106,7 +106,7 @@ def parse_layer_style(layer):
     A Jupyter notebook Image object if Jupyter is installed.
     This enables in-line display of the model plots in notebooks.
   """
-def plot_model(model, filename = 'model.png', path = '.', show_shapes = True, rankdir='TB', dpi=96, display = True, **kwargs):
+def plot_model(model, filename = 'model.png', path = '.', show_shapes = True, rankdir='TB', dpi=96, display = True, verbose = True, **kwargs):
     """
     :param model:
     :param filename:
@@ -162,7 +162,7 @@ def plot_model(model, filename = 'model.png', path = '.', show_shapes = True, ra
     """ Now we can easily identify the inputs/outputs of the model by looking at inbounds """
     input_nodes = [node_name for node_name in inbounds if len(inbounds[node_name]) == 0]
     output_nodes = [node_layers[ib].output.name for ib in list(inbounds.keys()) if ib not in np.hstack(list(inbounds.values()))]
-    print(in_shapes)
+    if verbose: print(in_shapes)
 
     """ Add nodes and edges to graph """
     for node_name in inbounds:
@@ -177,7 +177,7 @@ def plot_model(model, filename = 'model.png', path = '.', show_shapes = True, ra
         node = nodes[node_name]
         node.set_fontname(tp.__layers_css__['globals']['font_tag']['name'])
         graph.add_node(node)
-        print(f'[INFO] - Adding layer {node_name} to graph.')
+        if verbose: print(f'[INFO] - Adding layer {node_name} to graph.')
 
         for ib,ish in zip(inbounds[node_name],in_shapes[node_name]):
             kww = {'label':ish} if show_shapes else {}
